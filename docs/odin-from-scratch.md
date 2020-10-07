@@ -1,6 +1,6 @@
 # Installing Odin from scratch on microk8s on Ubuntu
 
-All of the YAML examples described below can be found in the [repository](https://github.com/Interactions-AI/sample-odin-configs/tree/main/k8s/local)
+All of the YAML examples described below can be found in the [repository](https://github.com/Interactions-AI/sample-odin-configs/tree/main/k8s/local).  For the `-template.yml` items, see below for details on how to populate to create a suitable configuration.
 
 ## Talking to the odin server
 To make client side commands to Odin, we will need to install the `odin-ml` package, which contains the core code and the client access APIs:
