@@ -1,0 +1,49 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  generation: 1
+  labels:
+    app: odin
+    version: "1"
+  name: odin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: odin
+  template:
+    metadata:
+      labels:
+        app: odin
+    spec:
+      serviceAccountName: odin
+      volumes:
+      - name: data-rw-many
+        persistentVolumeClaim:
+          claimName: data-rw-many
+      - name: odin-cred
+        secret:
+          secretName: odin-cred
+      imagePullSecrets:
+      - name: registry
+      containers:
+      - name: odin
+        image: interactions/odin-ml 
+        imagePullPolicy: Always
+        args:
+        - --root_path
+        - /data/pipelines
+        - --cred
+        - /etc/odind/odin-cred.yml
+        - --data_path
+        - /data/odin
+        ports:
+        - containerPort: 30000
+        volumeMounts:
+        - mountPath: /data
+          name: data-rw-many
+        - name: odin-cred
+          mountPath: /etc/odind/
+        env:
+        - name: ODIN_LOG_LEVEL
+          value: DEBUG

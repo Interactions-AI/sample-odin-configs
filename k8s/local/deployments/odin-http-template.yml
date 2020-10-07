@@ -1,0 +1,75 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  generation: 1
+  labels:
+    app: odin-http
+  name: odin-http
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: odin-http
+  template:
+    metadata:
+      labels:
+        app: odin-http
+    spec:
+      serviceAccountName: odin
+      volumes:
+      - name: data-rw-many
+        persistentVolumeClaim:
+          claimName: data-rw-many
+      - name: ssh-key
+        secret:
+          secretName: ssh-key
+          defaultMode: 0400
+      - name: ssh-config
+        configMap:
+          name: ssh-config
+      - name: odin-cred
+        secret:
+          secretName: odin-cred
+      imagePullSecrets:
+      - name: registry
+      containers:
+      - name: odin-http
+        image: interactions/odin-ml-http 
+        imagePullPolicy: Always
+        env:
+        - name: ODIN_GIT_NAME
+          value: {MACHINE_USER_NAME} 
+        - name: ODIN_GIT_EMAIL
+          value: {MACHINE_USER_EMAIL} 
+        - name: ODIN_AUTH_ISSUER
+          value: 'com.interactions'
+        - name: ODIN_SECRET
+          value: {SECRET_STRING}
+        - name: ODIN_SALT
+          value: {SALT} 
+        args:
+        - --host
+        - odin
+        - --root_path
+        - /data/pipelines
+        - --scheme
+        - ws
+        - --cred
+        - /etc/odind/odin-cred.yml
+        ports:
+        - containerPort: 9003
+        volumeMounts:
+        - mountPath: /data
+          name: data-rw-many
+        - name: odin-cred
+          mountPath: /etc/odind/odin-cred.yml
+          subPath: odin-cred.yml
+        - name: ssh-config
+          mountPath: /etc/ssh/ssh_config
+          subPath: ssh_config
+        - name: ssh-config
+          mountPath: /etc/ssh/ssh_known_hosts
+          subPath: known_hosts
+        - name: ssh-key
+          mountPath: /etc/odind/identity
+          subPath: identity
