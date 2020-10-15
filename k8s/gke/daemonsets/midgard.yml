@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: midgard
+  namespace: default
+  labels:
+    app: midgard
+spec:
+  selector:
+    matchLabels:
+      name: midgard
+  template:
+    metadata:
+      labels:
+        name: midgard
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      containers:
+      - image: interactions/midgard:cuda100
+        name: midgard
+        ports:
+        - name: midgard
+          containerPort: 29999
+          hostPort: 29999
+
+      hostNetwork: true
+      hostPID: true
+

@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: odin-http
+  name: odin-http
+spec:
+  selector:
+    app: odin-http
+  ports:
+    - name: http-server
+      port: 9003
+      targetPort: 9003
+  type: NodePort 
+status:
+  loadBalancer: {}

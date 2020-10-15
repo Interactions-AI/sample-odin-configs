@@ -1,0 +1,38 @@
+kind: Job
+apiVersion: batch/v1
+metadata:
+   name: git-clone
+spec:
+   template:
+      spec:
+         volumes:
+         - name: data-volume
+           persistentVolumeClaim:
+             claimName: data-rw-many
+         - name: ssh-config
+           configMap:
+             name: ssh-config
+         - name: ssh-key
+           secret:
+              secretName: ssh-key
+              defaultMode: 0400
+         restartPolicy: Never
+         containers:
+         - name: git-pull
+           image: alpine/git
+           imagePullPolicy: Always
+           command:
+           - /bin/sh
+           - -c
+           - "cd /data; git clone https://github.com/dpressel/sample-odin-pipelines.git pipelines"
+           volumeMounts:
+           - mountPath: /data
+             name: data-volume
+           - name: ssh-config
+             mountPath: /etc/ssh/ssh_config
+             subPath: ssh_config
+           - name: ssh-config
+             mountPath: /etc/ssh/ssh_known_hosts
+             subPath: known_hosts
+           - name: ssh-key
+             mountPath: /etc/odind/

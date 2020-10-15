@@ -1,0 +1,122 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  generation: 1
+  labels:
+    app: odin-http
+  name: odin-http
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: odin-http
+  template:
+    metadata:
+      labels:
+        app: odin-http
+    spec:
+      serviceAccountName: odin
+      containers:
+      - name: odin-http
+        env:
+        - name: ODIN_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: odinsecrets
+              key: username
+        - name: ODIN_ROOT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: odinsecrets
+              key: password
+        - name: ODIN_GIT_NAME
+          value: {GIT_USERNAME}
+        - name: ODIN_GIT_EMAIL
+          value: {GIT_USER_EMAIL}
+        - name: ODIN_AUTH_ISSUER
+          value: {AN_ISSUER_NAME} 
+        - name: ODIN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: odinsecrets
+              key: secret
+        - name: ODIN_SALT
+          valueFrom:
+            secretKeyRef:
+              name: odinsecrets 
+              key: salt
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: pgodin 
+              key: username
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: pgodin 
+              key: password
+        - name: ODIN_DB
+          valueFrom:
+            secretKeyRef:
+              name: pgodin 
+              key: database
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: pgodin 
+              key: database
+        image: interactions/odin-ml-http
+        imagePullPolicy: Always
+        args:
+        - --host
+        - odin
+        - --root_path
+        - /data/pipelines
+        - --scheme
+        - ws
+        ports:
+        - containerPort: 9003
+        readinessProbe:
+          httpGet:
+            path: /v1/ping
+            port: 9003
+          initialDelaySeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /v1/ping
+            port: 9003
+          initialDelaySeconds: 5
+        volumeMounts:
+        - mountPath: /data
+          name: data-volume
+      - name: cloud-sql-proxy
+        # It is recommended to use the latest version of the Cloud SQL proxy
+        # Make sure to update on a regular schedule!
+        image: gcr.io/cloudsql-docker/gce-proxy:1.17
+        command:
+          - "/cloud_sql_proxy"
+          - "-instances={CLOUD_SQL_INSTANCE}:pgdb=tcp:5432"
+          # This flag specifies where the service account key can be found
+          - "-credential_file=/secrets/service_account.json"
+        securityContext:
+          # The default Cloud SQL proxy image runs as the
+          # "nonroot" user and group (uid: 65532) by default.
+          runAsNonRoot: true
+        volumeMounts:
+        - name: sak-volume 
+          mountPath: /secrets/
+          readOnly: true
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: data-rw-many
+      - name: sak-volume 
+        secret:
+          secretName: sak 
+      - name: ssh-key
+        secret:
+          secretName: ssh-key
+          defaultMode: 0400
+      - name: ssh-config
+        configMap:
+          name: ssh-config
