@@ -596,10 +596,9 @@ gke-odin-k8s-gpu-pool-65d16d95-6wmr       Ready    <none>   8m54s   v1.16.13-gke
 
 ### Optional: Setting up Midgard
 
+
 By default, GCP prevents pods from scheduling to GPU nodes that do not explicitly require GPUs using a Kubernetes `taint`
 To use midgard to monitor, we need to remove this:
-
-
 
 ```
 $ kubectl taint nodes gke-odin-k8s-gpu-pool-65d16d95-2vsm nvidia.com/gpu=present:NoSchedule-

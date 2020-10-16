@@ -18,7 +18,7 @@ spec:
       - key: node-role.kubernetes.io/master
         effect: NoSchedule
       containers:
-      - image: interactions/midgard:cuda100
+      - image: interactions/midgard ##:cuda100
         name: midgard
         ports:
         - name: midgard
