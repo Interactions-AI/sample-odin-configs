@@ -1,0 +1,43 @@
+---
+# This service account is used when odin is run inside of k8s and
+# the cluster has role based access control (RBAC) like the research
+# cluster does.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+    labels:
+        name: odin
+    name: odin
+---
+# This role allows the odin container to do anything it wants with k8s
+# (much like a user with kubectl). We can set more specific permissions
+# eventually if we want to/we have stabilized on what we expect odin to do.
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+    labels:
+        name: odin
+    name: odin
+rules:
+    - apiGroups: ['*']
+      resources: ['*']
+      verbs: ['*']
+    - nonResourceURLs: ['*']
+      verbs: ['*']
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+    labels:
+        name: odin
+    name: odin
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: odin
+subjects:
+    - kind: ServiceAccount
+      name: odin
+      namespace: default
+    - kind: User
+      name: system:serviceaccount:odin:odin

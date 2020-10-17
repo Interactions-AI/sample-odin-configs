@@ -1,0 +1,17 @@
+kind: Service
+apiVersion: v1
+metadata:
+    labels:
+        app: odin
+        version: "1"
+    name: odin
+spec:
+    selector:
+        app: odin
+    ports:
+        - name: server
+          port: 30000
+          targetPort: 30000
+    type: ClusterIP
+status:
+    loadBalancer: {}
