@@ -67,7 +67,7 @@ CURRENT   NAME                                 CLUSTER                          
           microk8s                             microk8s-cluster                     admin                                
 
 ```
-If your cluster isnt the current context, switch it like this:
+If your cluster isn't the current context, switch it like this:
 
 ```
 $ kubectl config use-context gke_xxxxxxx_us-central1-c_odin-k8s
@@ -246,9 +246,9 @@ We will be setting odin up with a sidecar proxy to Cloud SQL for our Odin core d
 
 #### Odin Core
 
-The core component of odin is a web socket tier, and it will not be accessible from the public internet.
+The core component of Odin is a web socket tier, and it will not be accessible from the public internet.
 
-The deployment for odin's core tier should look something like this:
+The deployment for Odin's core tier should look something like this:
 
 ```
 kind: Deployment
@@ -341,7 +341,7 @@ Unlike in the Microk8s example, we cannot easily access the cluster to use the `
 
 #### Sidenote: Sidecars in Pods
 
-In many cases, there is a single docker container per pod.  Sidecars are named as such because they ride along with the primary container in a pod, meaning that pods with sidecars have (at least) two containers internally.  Normally, with a single pod, you only need to specify the pod for logging.  For multi-container pods, however, you need to specify which container to get logs from (notice the second argument):
+Most pods contain a single container.  Sidecars are named as such because they ride along with the primary container in a pod, meaning that pods with sidecars have (at least) two containers internally.  Normally, with a single pod, you only need to specify the pod for logging.  For multi-container pods, however, you need to specify which container to get logs from (notice the second argument):
 
 ```
 $ kubectl logs odin-http-7575b8c8cc-7j2c9 cloud-sql-proxy
@@ -566,7 +566,7 @@ The next time you run a job after the current JWT token expires (or the next tim
 
 ### Adding GPUs
 
-So far, we have no GPUs set up.  One great thing about GKE over a normal cluster is that you can add node pools of GPUs to the cluster as needed.  Lets add a 2-node pool to our cluster:
+So far, we have no GPUs set up.  One great thing about GKE over a normal cluster is that you can add node pools of GPUs to the cluster as needed.  Lets add a 2-node GPU pool to our cluster:
 
 ```
 $ gcloud container node-pools create gpu-pool --num-nodes=2 --accelerator type=nvidia-tesla-v100,count=1 --zone us-central1-c --cluster odin-k8s --machine-type=n1-standard-2
@@ -595,7 +595,6 @@ gke-odin-k8s-gpu-pool-65d16d95-6wmr       Ready    <none>   8m54s   v1.16.13-gke
 ```
 
 ### Optional: Setting up Midgard
-
 
 By default, GCP prevents pods from scheduling to GPU nodes that do not explicitly require GPUs using a Kubernetes `taint`
 To use midgard to monitor, we need to remove this:
